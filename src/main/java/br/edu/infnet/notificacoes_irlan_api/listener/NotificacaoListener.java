@@ -1,6 +1,7 @@
 package br.edu.infnet.notificacoes_irlan_api.listener;
 
 import br.edu.infnet.notificacoes_irlan_api.client.AlunoClient;
+import br.edu.infnet.notificacoes_irlan_api.config.RabbitMQConfig;
 import br.edu.infnet.notificacoes_irlan_api.dto.AlunoDTO;
 import br.edu.infnet.notificacoes_irlan_api.dto.NotificacaoDTO;
 import br.edu.infnet.notificacoes_irlan_api.service.EmailService;
@@ -17,12 +18,12 @@ public class NotificacaoListener {
     @Autowired
     private EmailService emailService;
 
-    @RabbitListener(queues = "notificacoes.biblioteca.aluguel")
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_ALUGUEL)
     public void escutarAluguel(NotificacaoDTO notificacao) {
         processarNotificacao(notificacao);
     }
 
-    @RabbitListener(queues = "notificacoes.biblioteca.devolucao")
+    @RabbitListener(queues = RabbitMQConfig.QUEUE_DEVOLUCAO)
     public void escutarDevolucao(NotificacaoDTO notificacao) {
         processarNotificacao(notificacao);
     }
