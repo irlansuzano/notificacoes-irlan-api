@@ -5,6 +5,7 @@ import br.edu.infnet.notificacoes_irlan_api.config.RabbitMQConfig;
 import br.edu.infnet.notificacoes_irlan_api.dto.AlunoDTO;
 import br.edu.infnet.notificacoes_irlan_api.dto.NotificacaoDTO;
 import br.edu.infnet.notificacoes_irlan_api.service.EmailService;
+import br.edu.infnet.notificacoes_irlan_api.service.LogService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,9 @@ public class NotificacaoListener {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private LogService logService;
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_ALUGUEL)
     public void escutarAluguel(NotificacaoDTO notificacao) {
@@ -48,6 +52,12 @@ public class NotificacaoListener {
                     aluno.nome(), notificacao.tipoEvento(), notificacao.livroTitulo());
         }
 
-        emailService.enviarEmail(aluno.email(), assunto, corpo);
+        try {
+            emailService.enviarEmail(aluno.email(), assunto, corpo);
+            logService.registrarLog(notificacao, aluno, assunto, corpo, true, null);
+        } catch (Exception e) {
+            logService.registrarLog(notificacao, aluno, assunto, corpo, false, e.getMessage());
+            throw e;
+        }
     }
 }
